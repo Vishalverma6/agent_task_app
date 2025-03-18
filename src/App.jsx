@@ -7,9 +7,9 @@ import Login from './pages/Login'
 import Signup from './pages/SignUp'
 import { useSelector } from 'react-redux'
 import Dashboard from './pages/Dashboard'
-import Agent from './components/core/dashboard/addAgent/agent'
 import UploadTask from './components/core/dashboard/task/UploadTask'
 import AgentTask from './components/core/dashboard/task/AgentTask'
+import Agent from './components/core/dashboard/addAgent/Agent'
 
 function App() {
   const {token} = useSelector((state) => state.auth)
