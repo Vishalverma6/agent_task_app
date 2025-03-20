@@ -4,6 +4,15 @@ const Agent = require("../models/Agent");
 // add Agent
 exports.addAgent = async(req, res)=> {
     try{
+
+        const userId = req.user.id
+
+        if(!userId){
+            return res.status(401).json({
+                success:false,
+                message:"User id is required",
+            })
+        }
         // fetch the data from req body 
         const { name, email, phone } = req.body;
 
@@ -29,6 +38,7 @@ exports.addAgent = async(req, res)=> {
             name:name,
             email:email,
             phone:phone,
+            user:userId
         });
 
         // return response
@@ -50,7 +60,15 @@ exports.addAgent = async(req, res)=> {
 // get All agents
 exports.getAllAgent = async(req, res)=> {
     try{
-        const allAgent = await Agent.find();
+        const userId = req.user.id
+
+        if(!userId){
+            return res.status(401).json({
+                success:false,
+                message:"User id is required",
+            })
+        }
+        const allAgent = await Agent.find({user:userId});
 
         // validation
         if(!allAgent){

@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { MdCancel } from "react-icons/md";
 import { addAgent } from "../../../../services/operations/agentAPI";
 import AllAgent from "./AllAgent";
+import { useSelector } from "react-redux";
 
 const countryCodes = [
   { code: "+1", country: "USA" },
@@ -15,6 +16,8 @@ const countryCodes = [
 const Agent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAgent, setNewAgent]= useState();
+  const {token} = useSelector((state)=> state.auth);
+  console.log("token",token);
 
   const {
     register,
@@ -25,7 +28,7 @@ const Agent = () => {
 
   
   const onSubmit = async(data) => {
-    const result = await addAgent(data);
+    const result = await addAgent(data,token);
     setNewAgent(result)
     // toast.success("Agent added successfully!");
     reset();

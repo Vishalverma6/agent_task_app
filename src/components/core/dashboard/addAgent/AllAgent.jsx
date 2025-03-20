@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { getAllAgent } from "../../../../services/operations/agentAPI";
 import { IoCall } from "react-icons/io5";
 import { HiOutlineMail } from "react-icons/hi";
+import { useSelector } from "react-redux";
 
 const AllAgent = ({newAgent}) => {
   const [agents, setAgents] = useState([]);
   const [showAgents, setShowAgents] = useState(false); // Toggle state
+  const {token} = useSelector((state)=> state.auth);
 
   const getAgent = async () => {
     try {
-      const result = await getAllAgent();
+      const result = await getAllAgent(token);
       setAgents(result);
       console.log("Agents:", result);
     } catch (error) {

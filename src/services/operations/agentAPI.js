@@ -11,11 +11,14 @@ const {
 
 
 // add agent 
-export const addAgent = async(data) => {
+export const addAgent = async(data,token) => {
     let result =null;
     const toastId = toast.loading("Loading");
     try{
-        const response  = await apiConnector("POST",ADD_AGENT_API,data);
+        console.log("token2",token);
+        const response  = await apiConnector("POST",ADD_AGENT_API,data,{
+            Authorization:`Bearer ${token}`,
+        });
 
         console.log("ADD_AGENT_API API RESPONSE....",response)
         if(!response?.data?.success){
@@ -32,18 +35,20 @@ export const addAgent = async(data) => {
 };
 
 // get All Agent 
-export const getAllAgent = async()=> {
+export const getAllAgent = async(token)=> {
     const toastId = toast.loading("Loading...")
     let result = [];
     try{
-        const response = await apiConnector("GET",GET_ALL_AGENT_API,null
+        const response = await apiConnector("GET",GET_ALL_AGENT_API,null,{
+            Authorization:`Bearer ${token}`,
+        }
         )
         console.log("GET_ALL_AGENT_API API RESPONSE....",response);
         if(!response.data.success){
             throw new Error (response?.data?.message || "Could not fetch all Agent")
         }
         result = response?.data?.data
-        toast.success(response?.data?.message || "Successfully fetched the Agent List")
+        // toast.success(response?.data?.message || "Successfully fetched the Agent List")
     }catch(error){
         console.log("GET_ALL_AGENT_API API ERROR .....",error);
         toast.error(error.message);

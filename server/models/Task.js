@@ -18,6 +18,10 @@ const taskSchema = new mongoose.Schema({
         ref:"Agent",
         // default:null
     },
+    user:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User",
+        }
 },
  {timestamps:true},
  

@@ -7,6 +7,17 @@ const Agent = require("../models/Agent");
 // Uploading CSV/XLXS files
 exports.uploadCSV = async(req, res) => {
     try{
+
+        const userId = req.user.id
+        console.log("user",userId)
+
+        if(!userId){
+            return res.status(401).json({
+                success:false,
+                message:"User id is required",
+            })
+        }
+        
          //Check if a file is uploaded
          if (!req.files || !req.files.file){
             return res.status(400).json({
@@ -34,7 +45,6 @@ exports.uploadCSV = async(req, res) => {
 
         let tasks = [];
         
-        
         // Process CSV or Excel file
         if(file.mimetype === "text/csv"){
             tasks = processCSV(file.data.toString());
@@ -43,7 +53,7 @@ exports.uploadCSV = async(req, res) => {
         }
 
         // Distribute tasks among agents
-        const distributedTasks = await distributeTasks(tasks);
+        const distributedTasks = await distributeTasks(tasks,userId);
 
          //  Save the distributed tasks to MongoDB
          const savedTasks = await Task.insertMany(distributedTasks);
@@ -65,15 +75,13 @@ exports.uploadCSV = async(req, res) => {
 };
 
 
-
-
 // Function to process CSV files
 const processCSV = (csvString) => {
-    console.log("Raw CSV Data:", csvString);
+    // console.log("Raw CSV Data:", csvString);
     const lines = csvString.trim().split("\n"); // Trim and split file into rows
     const headers = lines[0].split(",").map(h => h.trim()); // Extract column headers
 
-    console.log("Extracted Headers:", headers);
+    // console.log("Extracted Headers:", headers);
 
     //  Ensure required headers exist
     if (!headers.includes("FirstName") || !headers.includes("Phone") || !headers.includes("Notes")) {
@@ -96,7 +104,7 @@ const processCSV = (csvString) => {
 
 // Function to process Excel (XLSX/XLS) files
 const processExcel = (fileBuffer) => {
-    console.log("fileBuffer", fileBuffer);
+    // console.log("fileBuffer", fileBuffer);
     const workbook = xlsx.read(fileBuffer, { type: "buffer" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const jsonData = xlsx.utils.sheet_to_json(sheet, { header: 1 });
@@ -117,8 +125,9 @@ const processExcel = (fileBuffer) => {
 
 
 // Function to distribute tasks among agents
-const distributeTasks = async (tasks) => {
-    const agents = await Agent.find(); // Fetch all available agents
+const distributeTasks = async (tasks,userId) => {
+    
+    const agents = await Agent.find({user:userId}); // Fetch all available agents
 
     if (agents.length === 0) {
         throw new Error("No agents available for task distribution.");
@@ -133,7 +142,8 @@ const distributeTasks = async (tasks) => {
             firstName: task.firstName,
             phone: task.phone,
             text: task.text,
-            agent: assignedAgent._id // Assigning agent's ID
+            agent: assignedAgent._id, // Assigning agent's ID
+            user:userId
         });
 
         // Move to the next agent in a round-robin fashion
@@ -147,15 +157,24 @@ const distributeTasks = async (tasks) => {
 // get distributed task 
 exports.getTasksByAgent = async(req, res) => {
     try{
-        // Fetch all agents
-        const agents = await Agent.find();
 
-        if (agents.length === 0) {
-            return res.status(404).json({
+        const userId = req.user.id
+
+        if(!userId){
+            return res.status(401).json({
                 success:false,
-                message: "No agents found" ,
-            });
+                message:"User id is required",
+            })
         }
+        // Fetch all agents
+        const agents = await Agent.find({user:userId});
+
+        // if (agents.length === 0) {
+        //     return res.status(404).json({
+        //         success:false,
+        //         message: "No agents found" ,
+        //     });
+        // }
 
         // Fetch tasks and group them by agent
         let result = [];
@@ -191,7 +210,16 @@ exports.getTasksByAgent = async(req, res) => {
 // get All task 
 exports.getAllTask = async(req, res)=> {
     try{
-        const tasks = await Task.find();
+
+        const userId = req.user.id
+
+        if(!userId){
+            return res.status(401).json({
+                success:false,
+                message:"User id is required",
+            })
+        }
+        const tasks = await Task.find({user:userId});
         
         // return response 
         return res.status(200).json({

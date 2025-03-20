@@ -1,7 +1,7 @@
 import toast from "react-hot-toast"
 import { authEndpoints } from "../apis"
 import { apiConnector } from "../apiconnector";
-import { setLoading, setToken } from "../../slices/authSlice";
+import { setLoading, setToken, setUser } from "../../slices/authSlice";
 
 
 const {
@@ -33,7 +33,12 @@ export function signUp(
                 throw new Error(response.data.message)
             }
             toast.success(response?.data?.message ||"Signup Successful, Please Login")
-            navigate("/login")
+            dispatch(setToken(response.data.token));
+            dispatch(setUser(response.data.user)); 
+
+            localStorage.setItem("token",JSON.stringify(response?.data?.token));
+            localStorage.setItem("user", JSON.stringify(response.data.user));
+            navigate("/dashboard")
         }
         catch(error){
             console.log("SIGNUP API ERROR....",error)
@@ -64,10 +69,10 @@ export function login(email, password, navigate){
             }
             toast.success("Login Successful")
             dispatch(setToken(response.data.token));
+            dispatch(setUser(response.data.user)); 
 
-            
             localStorage.setItem("token",JSON.stringify(response?.data?.token));
-            
+            localStorage.setItem("user", JSON.stringify(response.data.user));
             navigate("/dashboard");
         }
         catch(error){
@@ -83,9 +88,9 @@ export function login(email, password, navigate){
 export function logout(navigate){
     return (dispatch) => {
         dispatch(setToken(null));
-        
+        dispatch(setUser(null))
         localStorage.removeItem("token");
-        
+        localStorage.removeItem("user");
         toast.success("Logged out Successfully")
         navigate("/")
     }

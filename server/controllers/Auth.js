@@ -52,12 +52,30 @@ exports.signup = async(req, res)=> {
             password:hashedPassword,
         });
 
-        // return response 
-        return res.status(200).json({
-            success:true,
-            message:"Signup Successful, Please Login",
-            data:user,
+        const payload = {
+            email: user.email,
+            id: user._id,
+        }
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn:"2h",
         });
+        user.token = token;
+        user.password = undefined;
+
+        
+        // create cookie and send response 
+    
+        const options = {
+            expires: new Date(Date.now()+ 3*24*60*60*1000),
+            httpOnly:true,
+        }
+        return res.cookie("token", token, options).status(200).json({
+            success: true,
+            message: "Signup successful. Please log in.",
+            token,
+            user,
+        });
+
     }catch(error){
         console.log(error);
         return res.status(500).json({

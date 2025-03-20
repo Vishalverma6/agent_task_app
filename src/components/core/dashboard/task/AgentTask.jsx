@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { getTaskByAgent } from "../../../../services/operations/taskAPI";
 import { IoCall } from "react-icons/io5";
+import { useSelector } from "react-redux";
 
 const AgentTask = () => {
   const [agentTask, setAgentTask] = useState([]);
+  const {token}= useSelector((state)=> state.auth);
 
   const getTaskByEachAgent = async () => {
     try {
-      const result = await getTaskByAgent();
+      const result = await getTaskByAgent(token);
       console.log("Tasks:", result);
       setAgentTask(result);
     } catch (error) {

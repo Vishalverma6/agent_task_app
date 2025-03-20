@@ -9,11 +9,14 @@ const {
 } = taskEndpoints;
 
 // upload CSV File 
-export const uploadCSV = async(data) => {
+export const uploadCSV = async(data,token) => {
     const toastId = toast.loading("Loading...")
     let result = [];
     try{
-        const response = await apiConnector("POST",UPLOAD_CSV_API,data)
+        console.log("token8",token)
+        const response = await apiConnector("POST",UPLOAD_CSV_API,data,{
+            Authorization:`Bearer ${token}`,
+        })
 
         console.log("UPLOAD_CSV_API API RESPONSE....",response);
         if(!response.data.success){
@@ -30,18 +33,21 @@ export const uploadCSV = async(data) => {
 };
 
 // get the task by agent 
-export const getTaskByAgent = async()=> {
+export const getTaskByAgent = async(token)=> {
     const toastId = toast.loading("Loading...")
     let result = [];
     try{
-        const response = await apiConnector("GET",GET_TASK_BY_AGENT_API,null
+        console.log("token5",token);
+        const response = await apiConnector("GET",GET_TASK_BY_AGENT_API,null,{
+            Authorization:`Bearer ${token}`
+        }
         )
         console.log("GET_TASK_BY_AGENT_API API RESPONSE....",response);
         if(!response.data.success){
             throw new Error (response?.data?.message || "Could not fetch task ")
         }
         result = response?.data?.data
-        toast.success(response?.data?.message || "Successfully fetched the task of each agent ")
+        // toast.success(response?.data?.message || "Successfully fetched the task of each agent ")
     }catch(error){
         console.log("GET_TASK_BY_AGENT_API API ERROR .....",error);
         toast.error(error.message);
@@ -51,18 +57,20 @@ export const getTaskByAgent = async()=> {
 };
 
 // get All Task 
-export const getAllTask = async() => {
+export const getAllTask = async(token) => {
     const toastId = toast.loading("Loading...")
     let result = [];
     try{
-        const response = await apiConnector("GET",GET_ALL_TASK_API,null
+        const response = await apiConnector("GET",GET_ALL_TASK_API,null,{
+            Authorization:`Bearer ${token}`
+        }
         )
         console.log("GET_ALL_TASK_API API RESPONSE....",response);
         if(!response.data.success){
             throw new Error (response?.data?.message || "Could not fetch all Task")
         }
         result = response?.data?.data
-        toast.success(response?.data?.message || "Successfully fetched the Task")
+        // toast.success(response?.data?.message || "Successfully fetched the Task")
     }catch(error){
         console.log("GET_ALL_TASK_API API ERROR .....",error);
         toast.error(error.message);

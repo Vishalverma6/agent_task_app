@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { uploadCSV } from "../../../../services/operations/taskAPI";
+import { useSelector } from "react-redux";
 
 const UploadTask = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const [selectedFile, setSelectedFile] = useState(null);
+  const {token} = useSelector((state)=> state.auth);
 
   // Handle file selection
   const handleFileChange = (event) => {
@@ -40,7 +42,7 @@ const UploadTask = () => {
 
     try {
       // Send file to backend (replace with your actual API endpoint)
-      const response = await uploadCSV(formData)
+      const response = await uploadCSV(formData, token)
 
     } catch (error) {
       console.error("Upload Error:", error);

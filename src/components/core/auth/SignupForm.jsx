@@ -50,8 +50,6 @@ const SignupForm = () => {
         onSubmit={submitHandler}
         className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-200"
       >
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Sign Up as an Agent</h2>
-
         {/* Full Name */}
         <label className="block mb-4">
           <p className="text-lg font-medium text-gray-700 mb-1">Full Name<sup className="text-red-500">*</sup></p>
