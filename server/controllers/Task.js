@@ -2,6 +2,7 @@
 const xlsx = require("xlsx");
 const Task = require("../models/Task");
 const Agent = require("../models/Agent");
+const User = require("../models/User");
 
 
 // Uploading CSV/XLXS files
@@ -57,6 +58,16 @@ exports.uploadCSV = async(req, res) => {
 
          //  Save the distributed tasks to MongoDB
          const savedTasks = await Task.insertMany(distributedTasks);
+
+        //  update the new task to the user 
+        await User.findByIdAndUpdate(
+            {_id:userId},
+            {$push : {
+                tasks:savedTasks?._id,
+                
+            }},
+            {new:true},
+        )
 
         //  return response 
          res.status(200).json({
@@ -220,6 +231,8 @@ exports.getAllTask = async(req, res)=> {
             })
         }
         const tasks = await Task.find({user:userId});
+
+        
         
         // return response 
         return res.status(200).json({

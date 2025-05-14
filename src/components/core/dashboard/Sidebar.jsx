@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className="h-screen w-64 bg-gray-800 text-white flex flex-col p-5">
+    <div className=" min-w-[222px] h-[calc(100vh-3.5rem)]  w-64 bg-gray-800 text-white flex flex-col p-5">
       {/* Sidebar Header */}
       <h2 className="text-xl font-bold mb-6 text-center">Task Agent</h2>
 

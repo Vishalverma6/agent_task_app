@@ -37,6 +37,9 @@ app.use(
  Remove "*" as the origin and replace it with http://localhost:5173 (your frontend URL).
 
 
+Please add your own .env configuration values, like MONGODB_URL and JWT_SECRET.
+
+
 5️⃣ Start the application
 npm run dev
 The app will now be running on http://localhost:5173/.

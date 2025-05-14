@@ -7,10 +7,10 @@ import AllAgent from "./AllAgent";
 import { useSelector } from "react-redux";
 
 const countryCodes = [
-  { code: "+1", country: "USA" },
-  { code: "+91", country: "India" },
-  { code: "+44", country: "UK" },
-  { code: "+61", country: "Australia" },
+  { code: "+1", countryName: "USA" },
+  { code: "+91", countryName: "India" },
+  { code: "+44", countryName: "UK" },
+  { code: "+61", countryName: "Australia" },
 ];
 
 const Agent = () => {
@@ -24,7 +24,11 @@ const Agent = () => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      countryCode: "+91", 
+    },
+  });
 
   
   const onSubmit = async(data) => {
@@ -36,7 +40,7 @@ const Agent = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between items-center">
+    <div className="flex flex-col  items-center">
       {/* Add Agent Button */}
       <button
 
@@ -47,7 +51,7 @@ const Agent = () => {
       </button>
 
       {/* All agent  */}
-      <div className="">
+      <div className="mr-32">
       <AllAgent newAgent= {newAgent} />
       </div>
       {/* Modal */}
@@ -96,12 +100,14 @@ const Agent = () => {
                   {/* Country Code Dropdown */}
                   <select
                     {...register("countryCode", { required: true })}
+                    
                     className="w-1/4 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Code</option>
                     {countryCodes.map((country, index) => (
-                      <option key={index} value={country.code}>
-                        {country.code} ({country.country})
+                      <option key={index} value={country.code} selected="">
+                       
+                        {country.code} ({country.countryName})
                       </option>
                     ))}
                   </select>

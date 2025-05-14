@@ -7,24 +7,14 @@ import toast from "react-hot-toast";
 const Home = () => {
     const {token} =  useSelector((state)=>state.auth)
     const navigate = useNavigate();
-    const clickHandler = ()=> {
 
-        if(token){
-            navigate("/dashboard/upload-file")
-        }
-        else{
-            toast.error("please login first to add task")
+    const clickHandler = ()=> {
             navigate("/login")
-        }
+        
     }
     const taskHandler = async()=> {
-        if(token){
-            navigate("/dashboard/get-task")
-        }
-        else{
-            toast.error("please login first to see the task list")
-            navigate("/login")
-        }
+            navigate("/signup")
+        
     }
 
   return (
@@ -59,12 +49,12 @@ const Home = () => {
         <button 
          onClick={taskHandler}
         className="bg-blue-600 cursor-pointer text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700">
-          View Tasks
+          Sign Up
         </button>
         <button 
          onClick={clickHandler}
         className="bg-green-600 cursor-pointer text-white px-6 py-3 rounded-lg text-lg hover:bg-green-700">
-          Add New Task
+          Login
         </button>
       </div>
 

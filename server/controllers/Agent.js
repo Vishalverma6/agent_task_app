@@ -1,4 +1,5 @@
 const Agent = require("../models/Agent");
+const User = require("../models/User");
 
 
 // add Agent
@@ -6,11 +7,11 @@ exports.addAgent = async(req, res)=> {
     try{
 
         const userId = req.user.id
-
-        if(!userId){
+        const userDetails = await User.findById(userId)
+        if(!userDetails){
             return res.status(401).json({
                 success:false,
-                message:"User id is required",
+                message:"User not found  required",
             })
         }
         // fetch the data from req body 
@@ -40,6 +41,15 @@ exports.addAgent = async(req, res)=> {
             phone:phone,
             user:userId
         });
+
+        // add the new agent to the User Schema 
+        await User.findByIdAndUpdate(
+            {_id:userDetails?._id},
+            {$push: {
+                agents: newAgent?._id
+            }},
+            {new : true},
+        )
 
         // return response
         return res.status(200).json({
