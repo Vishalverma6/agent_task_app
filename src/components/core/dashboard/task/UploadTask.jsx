@@ -51,7 +51,7 @@ const UploadTask = () => {
   };
 
   return (
-    <div className="flex  items-center   ">
+    <div className="flex ml-64  items-center   ">
       <div className="bg-white p-6 shadow-lg rounded-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-4">Upload Task File</h2>
 

@@ -43,7 +43,7 @@ export function signUp(
         catch(error){
             console.log("SIGNUP API ERROR....",error)
             toast.error(error?.response?.data?.message ||"Signup Failed")
-            navigate("/signup")
+            navigate("/signup");
         }
         dispatch(setLoading(false))
         toast.dismiss(toastId)

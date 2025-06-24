@@ -6,82 +6,97 @@ const User = require("../models/User");
 
 
 // Uploading CSV/XLXS files
-exports.uploadCSV = async(req, res) => {
-    try{
+exports.uploadCSV = async (req, res) => {
+    try {
 
         const userId = req.user.id
-        console.log("user",userId)
+        // console.log("user",userId)
 
-        if(!userId){
+        if (!userId) {
             return res.status(401).json({
-                success:false,
-                message:"User id is required",
+                success: false,
+                message: "User id is required",
             })
         }
-        
-         //Check if a file is uploaded
-         if (!req.files || !req.files.file){
+
+        //Check if a file is uploaded
+        if (!req.files || !req.files.file) {
             return res.status(400).json({
-                success:false,
-                message:"No file uploaded",
+                success: false,
+                message: "No file uploaded",
             });
-         }
+        }
 
-         const file = req.files.file;
+        const file = req.files.file;
 
-         // Allowed file types
-         const allowedFileTypes = [
+        // Allowed file types
+        const allowedFileTypes = [
             "text/csv",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "application/vnd.ms-excel"
         ];
-        
+
         // Validate file type
         if (!allowedFileTypes.includes(file.mimetype)) {
             return res.status(400).json({
-                success:false,
-                 message: "Invalid file type. Only CSV, XLSX, and XLS are allowed.",
-                 });
+                success: false,
+                message: "Invalid file type. Only CSV, XLSX, and XLS are allowed.",
+            });
         }
 
         let tasks = [];
-        
+
         // Process CSV or Excel file
-        if(file.mimetype === "text/csv"){
+        if (file.mimetype === "text/csv") {
             tasks = processCSV(file.data.toString());
-        }else{
+        } else {
             tasks = processExcel(file.data);
         }
 
         // Distribute tasks among agents
-        const distributedTasks = await distributeTasks(tasks,userId);
+        const distributedTasks = await distributeTasks(tasks, userId);
 
-         //  Save the distributed tasks to MongoDB
-         const savedTasks = await Task.insertMany(distributedTasks);
+        //  Save the distributed tasks to MongoDB
+        const savedTasks = await Task.insertMany(distributedTasks);
 
+        // console.log("saved task", savedTasks);
         //  update the new task to the user 
         await User.findByIdAndUpdate(
-            {_id:userId},
-            {$push : {
-                tasks:savedTasks?._id,
-                
-            }},
-            {new:true},
+            { _id: userId },
+            {
+                $push: {
+                    tasks: savedTasks?._id,
+
+                }
+            },
+            { new: true },
         )
 
+        // update the new task to the agents
+        for (const task of savedTasks) {
+            if (task.agent) {
+                await Agent.findByIdAndUpdate(
+                    { _id: task.agent },
+                    { $push: { tasks: task._id } },
+                    { new: true }
+                );
+            }
+        }
+
+
         //  return response 
-         res.status(200).json({
-            success:true,
+        res.status(200).json({
+            success: true,
             message: "File processed and tasks assigned successfully",
             tasks: savedTasks
         });
     }
-    catch(error){
+    catch (error) {
         console.log(error);
         res.status(500).json({
-            success:false,
-             message: "Error processing file", error: error.message,
-            });
+            success: false,
+            message: "Error processing file", error: error.message,
+        });
     }
 };
 
@@ -136,9 +151,9 @@ const processExcel = (fileBuffer) => {
 
 
 // Function to distribute tasks among agents
-const distributeTasks = async (tasks,userId) => {
-    
-    const agents = await Agent.find({user:userId}); // Fetch all available agents
+const distributeTasks = async (tasks, userId) => {
+
+    const agents = await Agent.find({ user: userId }); // Fetch all available agents
 
     if (agents.length === 0) {
         throw new Error("No agents available for task distribution.");
@@ -154,7 +169,7 @@ const distributeTasks = async (tasks,userId) => {
             phone: task.phone,
             text: task.text,
             agent: assignedAgent._id, // Assigning agent's ID
-            user:userId
+            user: userId
         });
 
         // Move to the next agent in a round-robin fashion
@@ -166,19 +181,19 @@ const distributeTasks = async (tasks,userId) => {
 
 
 // get distributed task 
-exports.getTasksByAgent = async(req, res) => {
-    try{
+exports.getTasksByAgent = async (req, res) => {
+    try {
 
         const userId = req.user.id
 
-        if(!userId){
+        if (!userId) {
             return res.status(401).json({
-                success:false,
-                message:"User id is required",
+                success: false,
+                message: "User id is required",
             })
         }
         // Fetch all agents
-        const agents = await Agent.find({user:userId});
+        const agents = await Agent.find({ user: userId });
 
         // if (agents.length === 0) {
         //     return res.status(404).json({
@@ -190,61 +205,90 @@ exports.getTasksByAgent = async(req, res) => {
         // Fetch tasks and group them by agent
         let result = [];
 
-        for(const agent of agents){
-            const tasks = await Task.find({agent:agent?._id});
+        for (const agent of agents) {
+            const tasks = await Task.find({ agent: agent?._id });
 
             result.push({
-                agent:{
-                    _id:agent?._id,
-                    name:agent?.name,
-                    email:agent?.email,
+                agent: {
+                    _id: agent?._id,
+                    name: agent?.name,
+                    email: agent?.email,
                 },
-                tasks:tasks
+                tasks: tasks
             })
         }
 
         // return response
         return res.status(200).json({
-            success:true,
-            message:"task for each agent fetched successfully",
-            data:result,
+            success: true,
+            message: "task for each agent fetched successfully",
+            data: result,
         })
-    }catch(error){
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
-            success:false,
-            message:"error while fecthing the task of agent",
+            success: false,
+            message: "error while fecthing the task of agent",
         })
     }
 }
 
 // get All task 
-exports.getAllTask = async(req, res)=> {
-    try{
+exports.getAllTask = async (req, res) => {
+    try {
 
         const userId = req.user.id
 
-        if(!userId){
+        if (!userId) {
             return res.status(401).json({
-                success:false,
-                message:"User id is required",
+                success: false,
+                message: "User id is required",
             })
         }
-        const tasks = await Task.find({user:userId});
+        const tasks = await Task.find({ user: userId })
+            .populate({
+                path: "agent",
+                select: "name email",
+            });
 
-        
-        
+            console.log("tasks123", tasks);
+
         // return response 
         return res.status(200).json({
-            success:true,
-            message:"All Task fetched successfully",
-            data:tasks,
+            success: true,
+            message: "All Task fetched successfully",
+            data: tasks,
         })
-    }catch(error){
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
-            success:false,
-            message:"Failed to fetched the All Task ",
+            success: false,
+            message: "Failed to fetched the All Task ",
         });
     }
 };
+
+// get all task of a single Agent by agent id
+exports.getTaskByAgentId = async (req, res) => {
+    try {
+        const { agentId } = req.body;
+
+        // validation
+        const agentDetails = await Agent.findById(agentId);
+        if (!agentDetails) {
+            return res.status(400).json({
+                success: false,
+                message: "Agent not found with given agent Id",
+            });
+        }
+
+        // // find task 
+        // const allTaskList = 
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetched the Task list of Agent ",
+        });
+    }
+}

@@ -27,7 +27,7 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
         {/* Page Content */}
-        <div className=" shadow-md rounded-lg p-6 flex-1">
+        <div className=" shadow-md rounded-lg p-6 w-9/12 ml-64 flex-1">
           <Outlet />
         </div>
       </div>
